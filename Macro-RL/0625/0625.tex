@@ -1,0 +1,324 @@
+\documentclass{beamer}
+\usepackage{hyperref}
+\usepackage{adjustbox}
+\usepackage{algorithm}
+\usepackage{float}
+\floatplacement{algorithm}{H}
+\usepackage{algorithmicx}
+\usepackage{etoolbox}        % for itemsep tweak (optional)
+\usepackage{algcompatible}
+\usepackage{algpseudocode}
+\usepackage[CJKmath=true, AutoFakeBold = true]{xeCJK}
+\usepackage[T1]{fontenc}
+\setCJKmainfont{AR PL KaitiM GB} %中文字体设置为楷体。
+% other packages
+\usepackage{latexsym,xcolor,multicol,booktabs,calligra}
+\usepackage{amssymb,amsfonts,amsmath,amsthm,mathrsfs,mathptmx} %数学常用宏包
+\usepackage{graphicx,pstricks,listings,stackengine}
+\usefonttheme[onlymath]{serif} %使用衬线字体展示公式，更加美观
+\usepackage{soul}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning}
+\usepackage[normalem]{ulem}
+\renewcommand{\today}{\number\year 年\number\month 月\number\day 日}
+\renewcommand{\alert}[1]{\textbf{\color{swufe}#1}}
+\usepackage[CJKmath=true, AutoFakeBold = true]{xeCJK}
+\usepackage[T1]{fontenc}
+\setCJKmainfont{AR PL KaitiM GB} % 中文字体设置为楷体。
+\usepackage[CJKmath=true, AutoFakeBold=3, AutoFakeSlant=.2]{xeCJK}
+\setCJKmainfont{AR PL KaitiM Big5}  
+\setCJKsansfont{AR PL KaitiM Big5}  
+\setCJKmonofont{AR PL KaitiM Big5}
+\newCJKfontfamily\Kai{標楷體}       
+\XeTeXlinebreaklocale "zh"
+
+\author{陳景龢}
+\title{Paper Detail}
+\subtitle{Deep Reinforcement Learning in a Monetary Model}
+\institute[NCCU]
+{\normalsize{Econ Dept\quad NCCU\quad }}
+% \date{xxxx年xx月xx日}
+\date{2025年6月3日} %直接使用编译当天日期
+\usepackage{JNU}
+
+
+% defs
+\def\cmd#1{\texttt{\color[RGB]{0, 0, 139}\footnotesize $\backslash$#1}}
+\def\env#1{\texttt{\color[RGB]{0, 0, 139}\footnotesize #1}}
+
+
+
+\lstset{
+    language=[LaTeX]TeX,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\bfseries\color[RGB]{0, 0, 139},
+    stringstyle=\color[RGB]{50, 50, 50},
+    numbers=left,
+    numberstyle=\small\color{gray},
+    rulesepcolor=\color{red!20!green!20!blue!20},
+    frame=shadowbox,
+}
+
+% \AtBeginSection[]{} % 取消章节切换前的目录
+\AtBeginEnvironment{algorithmic}{\setlength{\itemsep}{2pt}}
+
+\floatplacement{algorithm}{H}
+
+
+\begin{document}
+
+
+\begin{frame}
+    \titlepage
+    
+    \begin{figure}[htpb]
+        \begin{center}
+            % \includegraphics[width=0.55\linewidth]{pic/jiangnan_logo.png}
+        \end{center}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \tableofcontents[sectionstyle=show,subsectionstyle=show/shaded/hide,subsubsectionstyle=show/shaded/hide]
+\end{frame}
+
+\section{RL Framework}
+    \begin{frame}{RL Components}
+    The theoryotic frame work of RL is based on the \textbf{Markov Decision Process}
+    
+    \begin{enumerate}
+
+        \item \textbf{Markov Decision Process : } \\
+        $\bigl(\mathcal{S},\,\mathcal{A},\,P,\,R,\,\gamma\bigr)$
+        
+        \item \textbf{State:} \\
+        $s_t \in \mathcal{S}, \quad \mathcal{S}: \text{State space}$
+    
+        \item \textbf{Action:} \\
+        $a_t \in \mathcal{A}, 
+        \quad \mathcal{A}: \text{Action space}$
+    
+        \item \textbf{Transition:} \\
+        $P(s' \mid s, a)
+        = \Pr\bigl(s_{t+1}=s' \mid s_t=s,\;a_t=a\bigr)$
+    \end{enumerate}
+\end{frame}
+
+    \begin{frame}{Con'd}
+        \begin{enumerate}
+            \setcounter{enumi}{4}
+            \item \textbf{Immediate Reward}: \\
+            $R_{t+1}(s, a) = \mathbb{E}\bigl[R_{t+1} \mid s_t=s,\;a_t=a\bigr]$
+            \item \textbf{Reward Function}: \\
+            $G_t
+            = R_{t+1} + \gamma\,R_{t+2} + \gamma^2\,R_{t+3} + \cdots
+            = \sum_{k=0}^{\infty}\gamma^k\,R_{t+k+1}$
+
+            \item \textbf{Policy}: \\
+            $\pi(a \mid s)
+            = \Pr\bigl(a_t=a \mid s_t=s\bigr)$
+
+            \item \textbf{Action Value Funciton}: \\
+            $Q^{\pi}(s,a)= \mathbb{E}_{\pi}\!\Bigl[G_t \mid s_t = s,\;a_t=a\Bigr]$
+
+
+            \item \textbf{State Value Function}: \\
+            $V^{\pi}(s)= \mathbb{E}_{a\sim\pi(.|s_t)}\!\Bigl[G_t \mid s_t = s\Bigr]$
+            
+        \end{enumerate}
+
+    \end{frame}
+
+    \begin{frame}{How Agent Choose actions}
+        With the action value function and state value function, the agent can choose its action. For example : 
+        \begin{enumerate}
+            \item if we have optimal action value function\[
+            \pi^*(s) = \arg\max_{a \in \mathcal{A}} Q^*(s, a)
+            \]
+            \item if we have optimal state value function \footnote{By applying the trick of writing $Q^*$ in terms of $V^*$}
+            \[
+            \pi^*(s) = \arg\max_{a \in \mathcal{A}}
+            \Bigl\{\,R(s, a) + \gamma \sum_{s' \in \mathcal{S}} P(s' \mid s, a)\,V^*(s')\Bigr\}
+            \]
+        \end{enumerate}
+    \end{frame}
+
+    \begin{frame}{Categorizing RL algorithms}
+        So, our goal now is to find the $Q^*$ and $V^*$. In order to find them, people developed different algorithms accordingly. Thus, in this slide, I use a popular way - learning goal (i.e weather agent learning $Q^*$ or $V^*$)
+        to distinguish them 
+        \begin{enumerate}
+            \item Value learning : Learning $Q^*$
+            \item Policy learning : Learning $V^*$
+            \item Actor Critic : Learning both $V^*$ and $Q^*$ \footnote{參考DL 講義 Introduction to RL p.41}
+        \end{enumerate}
+    \end{frame}
+    
+
+\section{Actor Critic}
+
+    \begin{frame}{Starting From State-Value Function}
+        \begin{itemize}
+            \item State-Value Function 
+            \begin{align*}
+            V^{\pi}(s) 
+              &= \mathbb{E}_{a\sim\pi(.|s_t)}\bigl[G_t \mid s_t = s\bigr] = \mathbb{E}_{a\sim\pi(.|s_t)}\bigl[Q^{\pi}(s_t, a_t)\bigr] \\
+              &= \sum_{a}\pi(a|s_t)*Q^{\pi}(s_t, a_t)
+            \end{align*}
+            \item For \colorbox{yellow}{Policy learning} , we assume $Q^{\pi}$ given, so we use neural network \colorbox{red}{$\pi(a|s_t; \theta)$} with weight $\theta$ to approximate $\pi(a|s_t)$\footnote{$\pi(a|s_t; \theta)\approx \pi(a|s_t)$} 
+
+            \item For \colorbox{yellow}{Actor-Critic}, we approximate both $\pi$ and $Q^{\pi}$, with weight $\theta$, and $w$, by neural network \colorbox{red}{$\pi(a|s_t; \theta)$} and \colorbox{red}{$Q^{\pi}(s_t, a_t)$} 
+        \end{itemize}
+    \end{frame}
+    
+    \begin{frame}[fragile]{Actor Critic Algorithm : Pseudocode}
+      % ---- White‑background box that can break across pages ----
+      \begin{tcolorbox}
+    
+        \scriptsize  % <— just switch font, **no extra braces**
+    
+        \begin{algorithmic}[1]
+          \Require policy network parameters $\theta$, Q-network parameters $w$, learning rates $\alpha_\theta,\alpha_w$, discount factor $\gamma$
+          \Ensure updated parameters $\theta$, $w$
+          \For{each episode}
+            \State initialize state $s$
+            \For{each step in the episode}
+              \State Agent observe state $s_t$ and sample action $a_t \sim \pi_\theta(a \mid s)$
+              \State execute $a_t$; observe reward $r$ and next state $s'$
+              \State Randomly sample next action $a' \sim \pi_\theta(a' \mid s')$
+              \State Evaluate value network $q_t = Q(s,a;w)$ and $q_{t+1} = Q(s',a';w)$
+              \State Compute TD error : $\delta_t = q_t-(r_t+\gamma *q_{t+1})$\footnote{The theoretical basis of TD error is derived from bellman equation}
+              \State $w \gets w + \alpha_w\,\delta_t\,\nabla_w Q(s,a;w)$  \Comment{Critic update}
+              \State $\theta \gets \theta + \alpha_\theta\,\delta_t\,\nabla_\theta \log \pi_\theta(a \mid s)$\footnote{{The theoretical basis of actor update is based on policy gradient (i.e maximizing state-value function )}} \Comment{Actor update}
+              \State $s \gets s'$
+              \If{$s$ is terminal}
+                \State \textbf{break}
+              \EndIf
+            \EndFor
+          \EndFor
+        \end{algorithmic}
+    
+      \end{tcolorbox}
+    \end{frame}
+
+    \begin{frame}[fragile]{From AC to SAC}
+        \paragraph{1. 熵正則化後的目標函數}
+        \begin{equation}
+        J(\pi)=
+        \mathbb{E}_{\tau\sim\pi}\Bigl[
+          \sum_{t=0}^{\infty}\gamma^{t}\bigl(
+            r(s_t,a_t)-\alpha\log\pi(a_t\mid s_t)
+          \bigr)
+        \Bigr].
+        \end{equation}
+
+        \paragraph{2. 定義軟 $Q$ 與軟 $V$}\footnote{參考\href{https://zhuanlan.zhihu.com/p/70360272}{知乎}以及論文\href{https://arxiv.org/pdf/1812.05905}{Soft Actor-Critic Algorithms and Applications}}
+            \begin{align}
+            Q^{\pi}(s,a)
+              &=\mathbb{E}\!\Bigl[
+                  \sum_{t=0}^{\infty}\gamma^{t}\tilde r(s_t,a_t,\pi)
+                  \,\Bigl|\,s_0=s,a_0=a
+                \Bigr],\\
+            V^{\pi}(s)
+              &=\mathbb{E}_{a\sim\pi}\bigl[
+                  Q^{\pi}(s,a)-\alpha\log\pi(a\mid s)
+                \bigr],
+            \end{align}
+            其中 $\tilde r(s,a,\pi)=r(s,a)-\alpha\log\pi(a\mid s)$。
+    
+    \end{frame}
+
+    \begin{frame}[fragile]{Con'd}
+        \paragraph{3. 軟 Bellman 期望方程}
+            \begin{equation}
+            \boxed{\,
+              Q^{\pi}(s,a)=
+              \tilde r(s,a,\pi)+
+              \gamma\,
+              \mathbb{E}_{s'\sim P}\bigl[V^{\pi}(s')\bigr]
+            \,}.
+            \end{equation}
+            
+            \paragraph{4. 最優值函數—soft-max 形式}
+            \begin{equation}
+            V^{*}(s)=
+            \max_{\pi}V^{\pi}(s)=
+            \begin{cases}
+            \displaystyle
+            \alpha\log\!\sum_{a}
+              \exp\!\Bigl(\tfrac{1}{\alpha}Q^{*}(s,a)\Bigr),
+            & \text{離散動作},\\[8pt]
+            \displaystyle
+            \alpha\log\!\int
+              \exp\!\Bigl(\tfrac{1}{\alpha}Q^{*}(s,a)\Bigr)\,da,
+            & \text{連續動作}.
+            \end{cases}
+            \end{equation}
+    \end{frame}
+
+    \begin{frame}[fragile]{Con'd}
+        \paragraph{5. 軟 Bellman 最優方程}
+            \begin{align}
+            \boxed{
+              Q^{*}(s,a)=
+              r(s,a)+
+              \gamma\,\mathbb{E}_{s'\sim P}\bigl[V^{*}(s')\bigr]
+            },
+            \label{eq:softQ} \\[6pt]
+            \boxed{
+              V^{*}(s)=
+              \alpha\log\!\int
+                \exp\!\bigl(\tfrac{1}{\alpha}Q^{*}(s,a)\bigr)\,da
+            }.
+            \label{eq:softV}
+            \end{align}
+
+        \paragraph{6. 小結：簡單來說就是加上了Maximum Entropy的設計，使設計可以幫助Agent 探索更多Polciy (輸出更分散的策略)}
+    \end{frame}
+
+    
+
+    \begin{frame}[fragile]{Soft Actor Critic Algorithm : Pseudocode}
+      \vspace{-2}
+      \begin{tcolorbox}
+        \tiny
+        \begin{algorithmic}[1]
+          \Require policy parameters $\theta$, twin--Q parameters $w_1,w_2$,
+                  target Q parameters $\bar w_1,\bar w_2$,
+                  entropy temperature $\alpha$, step sizes $\eta_\theta,\eta_w,\eta_\alpha$, discount $\gamma$
+          \State initialize replay buffer $\mathcal{D}$
+          \For{each episode}
+            \State reset environment and get $s$
+            \For{each step}
+              \State sample $\tilde a_t = \tanh(\mu_\theta(s)+\sigma_\theta(s)\varepsilon)$, $\varepsilon\!\sim\!\mathcal{N}(0,I)$
+              \State execute $\tilde a_t$; observe $(r,s')$; store $(s,\tilde a_t,r,s')$ in $\mathcal{D}$
+              \For{each gradient update}
+                \State sample mini-batch $\{(s_i,a_i,r_i,s'_i)\}$ from $\mathcal{D}$
+                \State $a'_i\!\sim\!\pi_\theta(\cdot\mid s'_i)$ using reparameterization
+                \State $y_i \gets r_i+\gamma\bigl[\min_{j=1,2}Q_{\bar w_j}(s'_i,a'_i)-\alpha\log\pi_\theta(a'_i\mid s'_i)\bigr]$
+                \State $w_j \gets w_j -\eta_w\nabla_{w_j}\frac12\bigl(Q_{w_j}(s_i,a_i)-y_i\bigr)^2$ \Comment{Critic update}
+                \State $\theta \gets \theta -\eta_\theta\nabla_\theta
+                       \bigl[\alpha\log\pi_\theta(a_i\mid s_i)-\min_j Q_{w_j}(s_i,a_i)\bigr]$ \Comment{Actor update}
+                \If{temperature tuning}
+                  \State $\alpha\gets\alpha-\eta_\alpha\nabla_\alpha
+                         \bigl[-\alpha\log\pi_\theta(a_i\mid s_i)-\alpha\mathcal{H}_{\text{target}}\bigr]$
+                \EndIf
+                \State $\bar w_j\gets\rho w_j + (1-\rho)\bar w_j$ \Comment{Soft target update}
+              \EndFor
+              \State $s\gets s'$
+              \If{$s$ terminal} \textbf{break} \EndIf
+            \EndFor
+          \EndFor
+        \end{algorithmic}
+      \end{tcolorbox}
+    \end{frame}
+
+    
+
+    
+
+\section{Mapping RL and Economic}
+
+
+
+\end{document}
+
