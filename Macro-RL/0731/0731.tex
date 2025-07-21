@@ -1,0 +1,160 @@
+% !TEX program = xelatex
+\documentclass{beamer}
+
+% --------------------------------------------------
+% Packages and Bibliography
+% --------------------------------------------------
+\usepackage{hyperref}
+\usepackage{adjustbox}
+\usepackage{float}
+\floatplacement{algorithm}{H}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algcompatible}
+\usepackage{algpseudocode}
+\usepackage[normalem]{ulem}        % for underlining, strikeout
+
+% Bibliography
+\usepackage[backend=biber, style=numeric, sorting=none, doi=true, url=true]{biblatex}
+\addbibresource{ref.bib}
+
+% --------------------------------------------------
+% XeLaTeX and CJK Fonts
+% --------------------------------------------------
+\usepackage[CJKmath=true, AutoFakeBold=true]{xeCJK}
+\setCJKmainfont{AR PL KaitiM Big5}
+\setCJKsansfont{AR PL KaitiM Big5}
+\setCJKmonofont{AR PL KaitiM Big5}
+\newCJKfontfamily\Kai{標楷體}
+\XeTeXlinebreaklocale "zh"
+
+% --------------------------------------------------
+% Fonts, Colors, and Theme
+% --------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage{latexsym, amssymb, amsfonts, amsmath, amsthm, mathrsfs, mathptmx}
+\usepackage{graphicx, pstricks}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning}
+\usepackage{multicol}
+\usepackage{booktabs}
+\usepackage{calligra}
+\usepackage{soul}
+\usepackage{enumitem}
+\usefonttheme[onlymath]{serif}
+
+% Code listings
+\usepackage{listings}
+\lstset{
+    language=[LaTeX]TeX,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\bfseries\color[RGB]{0,0,139},
+    stringstyle=\color[RGB]{50,50,50},
+    numbers=left,
+    numberstyle=\small\color{gray},
+    rulesepcolor=\color{red!20!green!20!blue!20},
+    frame=shadowbox,
+}
+
+% --------------------------------------------------
+% Itemize and Enumerate Customization
+% --------------------------------------------------
+% Beamer item symbols
+\setbeamertemplate{itemize item}{$\bullet$}
+\setbeamertemplate{itemize subitem}{--}
+\setbeamertemplate{itemize subsubitem}{$\circ$}
+
+% enumitem settings
+\setlist[itemize,1]{label=\usebeamertemplate{itemize item}, leftmargin=1.5em, itemsep=0.3em}
+\setlist[itemize,2]{label=--, leftmargin=2.5em, labelsep=0.5em, topsep=0.3em, itemsep=0.1em}
+\setlist[itemize,3]{label=$\circ$, leftmargin=3em, labelsep=0.5em, topsep=0.3em, itemsep=0.1em}
+\setlist[enumerate,1]{label=\arabic*., ref=\arabic*}
+\setlist[enumerate,2]{label=\alph*), ref=\theenumi\alph*}
+
+% --------------------------------------------------
+% Custom Commands and Metadata
+% --------------------------------------------------
+\renewcommand{\today}{\number\year 年\number\month 月\number\day 日}
+\renewcommand{\alert}[1]{\textbf{\color{swufe}#1}}
+
+% University style
+\usepackage{JNU}
+
+% Presentation metadata
+\author{陳景龢}
+\title{Paper Detail}
+\subtitle{TAX-AI}
+\institute[NCCU]{\normalsize Econ Dept\quad NCCU}
+\date{2025年6月3日}
+
+% --------------------------------------------------
+% Document
+% --------------------------------------------------
+\begin{document}
+
+\begin{frame}
+  \titlepage
+  \begin{figure}[htpb]
+    \centering
+    % 如果有校徽或標誌，請放在 pic/jiangnan_logo.png
+    % \includegraphics[width=0.55\linewidth]{pic/jiangnan_logo.png}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \tableofcontents[sectionstyle=show,subsectionstyle=show/shaded/hide,subsubsectionstyle=show/shaded/hide]
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Background : Why MARL ?}
+  \begin{itemize}
+    \item Extracting relevant and actionable information from a complex society is arduous
+    \item Modeling a vast and heterogeneous population
+    \item Response of individuals to incentives remains highly unpredictable
+    \item Traditional ABM suffers from simplicity and subjectivity in setting parameters and behavior rules
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Background : The benefits of MARL}
+  \begin{itemize}
+    \item Offering optimal actions based on evolving state information
+    \item MARL algorithms perform well in partially observable environments and adaptively learn equilibrium solutions
+  \end{itemize}
+\end{frame}
+
+\section{Recap}
+\begin{frame}{Existing Literature}
+  The existing literature--AI Economist \cite{zheng2022ai} and RBC model \cite{curry2022analyzing}--exhibit limitations:
+  \begin{itemize}
+    \item Partial grounding in economic theory
+    \item Limited scalability in simulating many agents
+    \item Absence of calibration using real-world data
+  \end{itemize}
+\end{frame}
+
+\section{Model Setup}
+\begin{frame}{Economic Backbone:model Bewley-Aiyagari}
+  \begin{itemize}
+    \item Widely used to study:
+    \begin{itemize}
+      \item Capital market frictions, wealth distribution, economic growth
+    \end{itemize}
+    \item Four key roles:
+    \begin{itemize}
+      \item $N$ households, representative firm, financial intermediary, government
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\section{Simulation Detail}
+% 在此添加模擬細節
+
+\section{Learning Algorithm}
+% 在此添加學習算法內容
+
+\begin{frame}[allowframebreaks]{References}
+    \nocite{*}
+    \printbibliography
+\end{frame}
+
+\end{document}

@@ -1,0 +1,32 @@
+{
+  "latex-workshop.latex.tools": [
+    {
+      "name": "docker-xelatex",
+      "command": "docker",
+      "args": [
+        "run", "--rm", "--platform=linux/amd64",
+        "-e", "TEXINPUTS=/data/texmf//:",
+        "-v", "%DIR%:/data",
+        "-w", "/data",
+        "ghcr.io/xu-cheng/texlive-full:latest",
+        "sh", "-c",
+        "mkdir -p build && xelatex -interaction=nonstopmode -synctex=1 -output-directory=build %DOCFILE%"
+      ]
+    }
+  ],
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "xelatex (Docker → build/)",
+      "tools": ["docker-xelatex"]
+    }
+  ],
+  "latex-workshop.latex.outDir": "build",
+  "latex-workshop.latex.autoBuild.run": "onSave",
+  "latex-workshop.latex.clean.enabled": true,
+  "latex-workshop.latex.clean.fileTypes": [
+    "*.aux","*.bbl","*.blg","*.log","*.out","*.toc","*.synctex.gz"
+  ],
+  "latex-workshop.latex.clean.subFolder.enabled": true,
+  "latex-workshop.message.log.show": true,
+  "latex-workshop.view.pdf.viewer": "tab"
+}

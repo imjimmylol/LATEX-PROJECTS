@@ -1,0 +1,49 @@
+\documentclass[12pt]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{lipsum} % for sample text
+
+% Document
+\begin{document}
+
+\title{Sample LaTeX Document}
+\author{Your Name}
+\date{\today}
+
+\maketitle
+
+\tableofcontents
+
+\section{Introduction}
+\lipsum[1]
+
+\section{Mathematics}
+Here's a simple equation:
+\[
+E = mc^2
+\]
+
+And an aligned system:
+\begin{align*}
+a + b &= c \\
+d - e &= f
+\end{align*}
+
+\section{Figure}
+Here is a placeholder for a figure:
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.5\textwidth]{example-image}
+\caption{Example image}
+\label{fig:sample}
+\end{figure}
+
+\section{Conclusion}
+\lipsum[2]
+
+\end{document}
