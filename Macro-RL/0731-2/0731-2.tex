@@ -1,0 +1,111 @@
+\documentclass{beamer}
+
+\input{preamble}
+\begin{document}
+
+    \begin{frame}
+        \titlepage
+        \begin{figure}[htpb]
+            \centering
+        \end{figure}
+    \end{frame}
+
+    \begin{frame}
+        \tableofcontents[sectionstyle=show,subsectionstyle=show/shaded/hide,subsubsectionstyle=show/shaded/hide]
+    \end{frame}
+
+    \begin{frame}{General Settings}
+        \begin{itemize}
+            \item learning environments : one-step v.s Gather trade build 
+            \item Design of agent follows Mirrleesian framework
+                \begin{itemize}
+                    \item agents perform labor $l$ to earn income $z$, $z$ is different because of skill
+                    \item agent's utility increases with its posttax income and decreases with its labor
+                    \item agents are heterogeneously skilled
+                \end{itemize}
+        \end{itemize}
+        
+    \end{frame}
+    
+    \begin{frame}{Simulation dynamics}
+        \begin{itemize}
+            \item Taxation
+                \begin{itemize}
+                    \item Agent pay tax according to tax schedule $T(z, \tau)$
+                    \item Tax schedule can chagne at the start of each tax year
+                    \item Collected taxes are evenly redistributed back to agents
+                \end{itemize}
+            \item Behavioral models
+                \begin{itemize}
+                    \item each actor observes only portion of the full world state $s_t$
+                \end{itemize}
+        \end{itemize}
+
+    \end{frame}
+
+
+    \section{Learning Algorithm \& Training tricks}
+        \begin{frame}{Learning Algorithm : Two-step RL}
+            The Algorithm is called two-step because the Agents (the inner level) need to adapt to policies set and vice versa
+            \begin{figure}[h]
+            \includegraphics[scale=0.3]{./img/pic1.png}
+            \end{figure}
+        \end{frame}
+
+        \begin{frame}{Training tricks}
+            \begin{itemize}
+                \item Curriculum learning
+                    \begin{itemize}
+                        \item agents adapt to tax schedule then planner starts to learn 
+                        \item gradually introduce labor costs and then taxes in a similar way
+                    \end{itemize}
+                \item Entropy regularization : To stimulate exploration of policy
+            \end{itemize}
+        \end{frame}
+
+        \begin{frame}{PPO}
+            \sout{之後更新}
+        \end{frame}
+
+    \section{Learning Environment}
+
+        \subsection{one-step economy}
+
+        \begin{frame}{One-step economy : Basic Settings}
+            The one-step economy is a simplifyed Environment which equiped with
+            the following properties : 
+            \begin{itemize}
+                \item planner and the agents each make a
+            single decision: The planner sets taxes, and the agents choose an
+            amount of labor to perform
+                \item the agents decision is indepent from other agents
+            \end{itemize}
+
+        \end{frame}
+
+        \begin{frame}{One-step economy : Simulation Results}
+            \begin{itemize}
+                \item AI Economist can learn simular results to the analytical formula Saez tax
+                \item AI Economist can acheive higher social welfare
+            \end{itemize}
+            \begin{figure}[h]
+                \includegraphics[width=10cm]{./img/pic2.png}
+            \end{figure}
+        \end{frame}
+
+        \subsection{Gather-Trade-Build: spatiotemporal
+    economies}
+
+    \begin{frame}{Gather-Trade-Build : Basic Settings}
+        \begin{itemize}
+            \item two-dimensional, spatiotemporal economy
+            \item agents who move, gather resources (stone and wood), trade, and build houses
+        \end{itemize}
+        \begin{figure}[h]
+            \includegraphics[width=10cm]{./img/pic3.png}
+        \end{figure}
+        
+    \end{frame}
+    
+
+\end{document}

@@ -1,0 +1,45 @@
+.
+├── 0625
+│   ├── 0625.tex
+│   ├── build
+│   │   ├── 0625.aux
+│   │   ├── 0625.log
+│   │   ├── 0625.nav
+│   │   ├── 0625.out
+│   │   ├── 0625.pdf
+│   │   ├── 0625.snm
+│   │   ├── 0625.synctex.gz
+│   │   ├── 0625.toc
+│   │   └── 0625.vrb
+│   ├── JNU.sty
+│   └── ref.bib
+├── 0731
+│   ├── 0731.tex
+│   ├── build
+│   │   ├── 0731.aux
+│   │   ├── 0731.bbl
+│   │   ├── 0731.bcf
+│   │   ├── 0731.blg
+│   │   ├── 0731.log
+│   │   ├── 0731.nav
+│   │   ├── 0731.out
+│   │   ├── 0731.pdf
+│   │   ├── 0731.run.xml
+│   │   ├── 0731.snm
+│   │   ├── 0731.synctex.gz
+│   │   └── 0731.toc
+│   ├── JNU.sty
+│   └── ref.bib
+├── 0731-2
+│   ├── 0731-2.tex
+│   ├── build
+│   │   ├── 0731-2.bcf
+│   │   ├── 0731-2.pdf
+│   │   ├── 0731-2.run.xml
+│   │   └── 0731-2.synctex.gz
+│   ├── JNU.sty
+│   ├── preamble.tex
+│   └── ref.bib
+└── output.txt
+
+7 directories, 36 files
