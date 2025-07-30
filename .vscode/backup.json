@@ -12,12 +12,30 @@
         "sh", "-c",
         "mkdir -p build && xelatex -interaction=nonstopmode -synctex=1 -output-directory=build %DOCFILE%"
       ]
+    },
+    {
+      "name": "docker-biber",
+      "command": "docker",
+      "args": [
+        "run", "--rm", "--platform=linux/amd64",
+        "-e", "TEXINPUTS=/data/texmf//:",
+        "-v", "%DIR%:/data",
+        "-w", "/data",
+        "ghcr.io/xu-cheng/texlive-full:latest",
+        "sh", "-c",
+        "biber build/%DOCFILE%"
+      ]
     }
   ],
   "latex-workshop.latex.recipes": [
     {
-      "name": "xelatex (Docker → build/)",
-      "tools": ["docker-xelatex"]
+      "name": "XeLaTeX → Biber → XeLaTeX (Docker → build/)",
+      "tools": [
+        "docker-xelatex",
+        "docker-biber",
+        "docker-xelatex",
+        "docker-xelatex"
+      ]
     }
   ],
   "latex-workshop.latex.outDir": "build",
@@ -28,5 +46,8 @@
   ],
   "latex-workshop.latex.clean.subFolder.enabled": true,
   "latex-workshop.message.log.show": true,
-  "latex-workshop.view.pdf.viewer": "tab"
+  "latex-workshop.view.pdf.viewer": "tab",
+  "latex-workshop.synctex.afterBuild.enabled": true,
+  "latex-workshop.synctex.synctexjs.enabled": true
+
 }

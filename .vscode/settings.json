@@ -6,11 +6,12 @@
       "args": [
         "run", "--rm", "--platform=linux/amd64",
         "-e", "TEXINPUTS=/data/texmf//:",
+        "-e", "SOURCE_DATE_EPOCH=0",
         "-v", "%DIR%:/data",
         "-w", "/data",
         "ghcr.io/xu-cheng/texlive-full:latest",
         "sh", "-c",
-        "mkdir -p build && xelatex -interaction=nonstopmode -synctex=1 -output-directory=build %DOCFILE%"
+        "mkdir -p build && xelatex -synctex=1 -interaction=nonstopmode -output-directory=./build %DOCFILE%.tex"
       ]
     },
     {
@@ -19,6 +20,7 @@
       "args": [
         "run", "--rm", "--platform=linux/amd64",
         "-e", "TEXINPUTS=/data/texmf//:",
+        "-e", "SOURCE_DATE_EPOCH=0",
         "-v", "%DIR%:/data",
         "-w", "/data",
         "ghcr.io/xu-cheng/texlive-full:latest",
@@ -40,11 +42,25 @@
   ],
   "latex-workshop.latex.outDir": "build",
   "latex-workshop.latex.autoBuild.run": "onSave",
+  
+  // 同步 & 预览
+  "latex-workshop.synctex.enabled": true,
+  "latex-workshop.synctex.afterBuild.enabled": true,
+  "latex-workshop.synctex.synctexjs.enabled": true,
+  "latex-workshop.view.pdf.viewer": "tab",
+  "latex-workshop.view.pdf.internal.synctex.keybinding": "ctrl+click",
+
+  // 清理
   "latex-workshop.latex.clean.enabled": true,
+  "latex-workshop.latex.clean.method": "glob",
+  "latex-workshop.latex.autoClean.run": "onBuilt",
   "latex-workshop.latex.clean.fileTypes": [
-    "*.aux","*.bbl","*.blg","*.log","*.out","*.toc","*.synctex.gz"
+    "*.aux","*.bbl","*.blg","*.idx","*.ind","*.lof",
+    "*.lot","*.out","*.toc","*.acn","*.acr","*.alg",
+    "*.glg","*.glo","*.gls","*.fls","*.log","*.fdb_latexmk",
+    "*.snm","*.nav","*.vrb"
   ],
-  "latex-workshop.latex.clean.subFolder.enabled": true,
-  "latex-workshop.message.log.show": true,
-  "latex-workshop.view.pdf.viewer": "tab"
+
+  // 不清理 synctex
+  "latex-workshop.latex.clean.subFolder.enabled": true
 }
