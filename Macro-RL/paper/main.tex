@@ -1,0 +1,219 @@
+% main.tex
+\documentclass[11pt]{article}
+\usepackage{pepadun}
+
+\usepackage[backend=biber, style=ieee]{biblatex}
+\addbibresource{pepadun.bib}  % Gunakan file bib yang disediakan
+
+% Metadata dokumen
+\title{Semi-RL Autonomous Macro System: A Hybrid Approach for Reinforcement Learning in Macroeconomics}
+\author{%
+    \begin{tabular}{c}
+        \textsuperscript{1}Jing-Ho, Chen, \\
+        \textsuperscript{2}Next Author and \\[6pt]
+        \textsuperscript{1,2}Economic, National Chengchi University, \\
+        No.64, Sec.2, ZhiNan Rd., Wenshan District, Taipei City 116011, Taiwan (R.O.C.) \\[6pt]
+        e-mail: \textsuperscript{1} zhingehe78@gmail.com, \\
+    \end{tabular}%
+}
+\date{} % Hapus tanggal otomatis
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+TODO
+\end{abstract}
+
+\keywords{RL, DL, ABM}
+
+\section{INTRODUCTION}
+
+Reinforcement learning (RL) has recently been explored as a tool for macroeconomic modeling, but current approaches fall into two broad categories, each with notable limitations. (1) Single-agent RL with a representative agent: Here a single RL "agent" represents an entire sector (e.g. the representative household or firm) interacting with an abstract macroeconomic environment. This approach simplifies the economy but often requires very restrictive assumptions. It struggles to handle complex lifetime utility maximization with expectations, so researchers are forced to use overly simplified representative agents.
+
+Moreover, because most of the economy is baked into the fixed environment dynamics, these models lack rich agent dynamics – making it difficult to capture how policy changes propagate over time through agent behavior. (2) Multi-agent RL with many agents: In this approach, multiple agents (households, firms, government, etc.) are each modeled as RL agents. While this allows heterogeneity and potentially richer interactions, multi-agent RL systems are notoriously hard to train. They often suffer from instability and have no guarantee of converging to a stable equilibrium as the number of agents grows
+jmlr.org
+. This instability severely limits scalability. Yet, to study crucial macro questions like income inequality or optimal taxation, we need to simulate a large population of heterogeneous agents – something that neither single-agent nor naive multi-agent RL handles well under current methods.
+
+To address these challenges, we propose a new framework called the Semi-RL Autonomous Macro System (SAMS). This hybrid approach combines the strengths of traditional economic modeling with modern RL and deep learning techniques. The key idea is to let the majority of agents in the model behave according to established economic principles (following their first-order conditions, or F.O.C., for optimality) while reserving RL for the elements of the system that we want to learn or optimize (such as a policy-making agent). In other words, instead of making every agent an RL learner (which causes learning instability) or reducing the whole economy to one trivial RL agent (which oversimplifies dynamics), we split the work: non-RL agents follow adaptive decision rules derived from economic theory, and a limited number of RL agents learn optimal policies within this environment. The non-RL agents are not static; they behave autonomously by optimizing their objectives (e.g. utility or profit) via their F.O.C., which means they respond realistically to changes in the economic environment. This creates a dynamic and responsive macroeconomic simulator, but without the explosion of learning complexity that plagues full MARL systems. 
+
+Technically, our framework leverages a Monte Carlo simulation-based deep learning method to solve these agents’ optimization problems. Recent advances in deep learning have shown that we can efficiently solve high-dimensional dynamic models (such as heterogeneous-agent macro models) by casting them as neural-network approximations to Bellman or Euler equations
+web.stanford.edu
+. In particular, we build on the method of Maliar et al. (2021), who demonstrated a deep learning approach capable of handling large-scale heterogeneous-agent models (e.g. the Krusell–Smith model with thousands of agents) without resorting to the usual simplifying assumptions
+web.stanford.edu
+. By incorporating this deep learning Monte Carlo solver, SAMS frees us from having to assume a single representative agent. We can include a rich variety of heterogeneous agents whose decision rules are computed through the deep learning framework, ensuring that each agent (or type of agent) optimally responds to its economic incentives and constraints. These agents effectively simulate the rational behavior one would expect in a macroeconomic model, but with computational tractability even in large numbers.
+
+Meanwhile, the elements of the system that do use RL (for example, a policy agent like a government adjusting tax rates) can learn and adapt their strategies over time. Because the bulk of the economy (households, firms, etc.) is handled by the deep-learning-based F.O.C. solvers, the overall simulation remains much more stable. The environment that the RL agent interacts with is grounded in equilibrium behavior (through the non-RL agents), which is less non-stationary than an all-RL multi-agent system. As a result, SAMS can scale to a large number of heterogeneous agents without suffering the divergence or chaos that typically occurs in multi-agent RL. This hybrid design significantly improves stability and realism: policy effects can be observed through the adaptive responses of many simulated agents, yet the training process remains feasible. 
+
+In summary, the Semi-RL Autonomous Macro System offers a balanced approach that bridges the gap between existing RL-in-macro methods. It retains the rich dynamics and heterogeneity of agent-based models while constraining the learning problem to a manageable scope. By focusing RL where it is most needed (e.g. learning optimal policy) and using deep learning to handle traditional agent optimization, this framework aims to enable robust macroeconomic simulations for scenarios like inequality, taxation, and beyond. We anticipate that SAMS can unlock more realistic and scalable macroeconomic policy analysis, combining the strengths of reinforcement learning with the rigor of dynamic economic modeling.
+
+
+\section{RESEARCH METHODOLOGY}
+
+We develop a hybrid framework that combines deep-learning solutions to dynamic economic optimization with a targeted reinforcement learning (RL) policy agent. RL is reserved solely for the government, while households (and firms, if included) are modeled as optimizing agents whose decision rules are computed via a neural network (NN) solver that minimizes Euler-equation residuals. This preserves equilibrium discipline and heterogeneity without incurring the instability typical of full multi-agent RL.
+
+\paragraph{Stage 1: Economic environment construction.}
+We specify a backbone macroeconomic model with heterogeneous households, preference and technology parameters, market structure, and aggregate shocks. Each household type’s policy function is represented by a neural network $f_{\phi}$ that maps states (idiosyncratic and aggregate) into decisions (e.g., consumption, savings, labor). Rather than learning from demonstrations, $f_{\phi}$ is trained by minimizing Euler residuals implied by agents’ first-order conditions, following \cite{maliar2021deep}. This is akin to an imitation-learning analogue in which the ``expert'' is the model’s optimality conditions rather than data \cite{ho2016generative}. Monte Carlo simulation over the joint state distribution enables scalable training across high-dimensional state spaces and rich heterogeneity.
+
+\paragraph{Stage 2: Equilibrium-consistent environment dynamics.}
+Given $f_{\phi}$, we simulate the cross-section of households and aggregate to market-level objects (e.g., factor supplies, demands). Prices or wedges are updated by an aggregator (e.g., market-clearing or reduced-form pricing map), delivering a dynamic, equilibrium-consistent environment that responds to policy changes. We iterate between (i) updating $f_{\phi}$ by minimizing Euler residuals under current prices/policy and (ii) recomputing aggregates until residuals and aggregates stabilize within tolerance.
+
+\paragraph{Stage 3: RL-based policy optimization.}
+With a responsive, equilibrium-grounded environment in place, we introduce the government RL agent. 
+The complete procedure is summarized in Algorithm~\ref{alg:sams} (see Appendix).
+
+\medskip
+\noindent
+Overall, the system alternates between (i) solving households’ optimization via Euler-residual minimization and (ii) improving the government’s policy via RL, yielding a Semi-RL Autonomous Macro System that is both scalable and theoretically disciplined.
+
+
+\subsection{Deriving environment dynamics and Learning objectives (stage1 and stage2)}
+
+We choose the structure of Bewley-Aiyagari model as our Macro backbone following the article \cite{mi2023taxai}
+
+\paragraph{2.1.1} N Households
+
+The households faces the following obtimization problem :
+\begin{equation}
+\begin{aligned}
+\max_{\{c_t,h_t,a_{t+1}\}_{t=0}^{T_N}} \quad 
+& \mathbb{E}_0 \sum_{t=0}^{T_N} \beta^t 
+\left( \frac{c_t^{1-\theta}}{1-\theta} - \frac{h_t^{1+\gamma}}{1+\gamma} \right) \\[4pt]
+\text{s.t.}\quad 
+& (1+\tau_s)c_t + a_{t+1} = i_t - T(i_t) + a_t - T^{a}(a_t), \\
+& m_t \coloneqq i_t - T(i_t) + a_t - T^{a}(a_t),\\
+& i_t = w_t e_t h_t + r_{t-1} a_t,\\
+& a_{t+1} \ge 0 \iff (1+\tau_s)c_t \le m_t \iff c_t \le \frac{m_t}{1+\tau_s}.
+\end{aligned}
+\tag{1}
+\end{equation}
+
+Then by the method proposed in \cite{maliar2021deep} we can obtains its euler equation and KKT conditions in unit free form:
+
+
+
+\subsection{RL-based policy optimization}
+
+
+\appendix
+
+\section{Algorithmic Details}
+\begin{algorithm}[H]
+\caption{SAMS: Environment Construction and Government Policy Learning}
+\label{alg:sams}
+\begin{algorithmic}[1]
+\State \textbf{Inputs:} Backbone macro model $\mathcal{M}$; type distribution $\mathcal{D}_{\text{types}}$; shock process $\mathcal{P}_{\varepsilon}$; welfare objective $W$; pricing/aggregation map $\mathcal{A}$; tolerances $\epsilon_{\text{Euler}}, \epsilon_{\text{GE}}$.
+\State \textbf{Initialize:} Household NN $f_{\phi}$ (policy rules); government policy $\pi_{\theta}$; price vector or wedges $p$; replay buffer $\mathcal{B}\leftarrow\emptyset$.
+
+\Statex
+\Function{HouseholdSolver}{$p,\ \text{policy context}$}
+  \Repeat
+    \State Sample Monte Carlo batch of states $(x,g)\sim \mathcal{D}_{\text{types}}\times \mathcal{P}_{\varepsilon}$ and aggregate state $s$.
+    \State Compute decisions $d=f_{\phi}(x,g,s)$.
+    \State Evaluate Euler residuals $\mathcal{R}(d; x,g,s,p)$ from F.O.C.
+    \State Update $\phi \leftarrow \phi - \eta_{\phi}\nabla_{\phi}\big[\mathbb{E}(\|\mathcal{R}\|^2)\big]$.
+  \Until{$\mathbb{E}(\|\mathcal{R}\|^2) < \epsilon_{\text{Euler}}$}
+  \State \textbf{return} $f_{\phi}$
+\EndFunction
+
+\Statex
+\Repeat \Comment{\emph{Outer equilibrium / training loop}}
+  \State $f_{\phi}\leftarrow$\Call{HouseholdSolver}{$p,\ \pi_{\theta}$} \Comment{Solve household optimization at current prices/policy}
+  \State Simulate cross-section using $f_{\phi}$; aggregate via $\mathcal{A}$ to get new $(\tilde{p}, \tilde{s})$ trajectories.
+  \If{$\| \tilde{p}-p \| > \epsilon_{\text{GE}}$}
+    \State Update prices $p \leftarrow \lambda \tilde{p} + (1-\lambda)p$ \Comment{Damping for GE convergence}
+  \EndIf
+
+  \State \textbf{RL Rollouts:}
+  \For{episodes $e=1,\dots,E$}
+    \State Reset aggregate state $s_0$; sample micro states $(x^i_0,g^i_0)$ across households.
+    \For{$t=0,1,\dots,T-1$}
+      \State Government acts: $a_t \sim \pi_{\theta}(\cdot \mid s_t)$ \Comment{e.g., tax schedule parameters}
+      \State Households respond via $f_{\phi}$; environment transitions: $(s_{t+1}, \{x^i_{t+1},g^i_{t+1}\})$.
+      \State Compute reward $r_t = W(s_t,a_t)$ (e.g., social welfare with weights/penalties).
+      \State Store $(s_t,a_t,r_t,s_{t+1})$ in buffer $\mathcal{B}$.
+    \EndFor
+  \EndFor
+
+  \State \textbf{RL Update:} $\theta \leftarrow \text{UpdatePolicy}(\theta;\mathcal{B})$ \Comment{e.g., PPO/SAC with baselines}
+  \State Optionally clear/decay buffer $\mathcal{B}$; assess stopping criteria.
+\Until{convergence of $(p,\phi,\theta)$ or budget exhausted}
+
+\State \textbf{Output:} Trained household solver $f_{\phi^\star}$, equilibrium prices $p^\star$, and government policy $\pi_{\theta^\star}$.
+\end{algorithmic}
+\end{algorithm}
+
+
+
+\section{environment construction}
+\subsection{Household problem : Euler Equation and KKT}
+
+We begin by setting up the Lagrangian of the representative household’s optimization problem:
+\begin{equation}
+\begin{aligned}
+L &= \mathbb{E}_0 \sum_{t=0}^{T_N} \beta^t \Big\{ U(c_t,h_t) 
++ \lambda_t \big[ w_t e_t h_t + r_{t-1} a_t - T(w_t e_t h_t + r_{t-1} a_t) \\
+&\qquad + a_t - T^a(a_t) - a_{t+1} - (1+\tau_c)c_t \big] 
++ \mu_t a_{t+1} \Big\}.
+\end{aligned}
+\end{equation}
+
+\paragraph{First-order condition with respect to consumption.}
+\begin{equation}
+[c_t]: \quad \mathbb{E}_0 \big[ U_c(c_t,h_t) \big] 
+= \lambda_t (1+\tau_s).
+\end{equation}
+
+\paragraph{First-order condition with respect to savings.}
+\begin{equation}
+\begin{aligned}
+[a_{t+1}]:\quad &
+\mathbb{E}_0 \!\left[ \beta^t \{-\lambda_t + \mu_t\} 
++ \beta^{t+1} \big\{ \lambda_{t+1}\,[\,r_t - T'(i_{t+1})r_t + 1 - {T^a}'(a_{t+1})\,] \big\} \right] = 0 \\
+&= \mathbb{E}_0 \!\left[ -\lambda_t + \mu_t 
++ \beta \,\lambda_{t+1}\,[\,r_t - T'(i_{t+1})r_t + 1 - {T^a}'(a_{t+1})\,] \right] = 0 \\
+&\implies \mathbb{E}_0[\mu_t] 
+= \mathbb{E}_0 \!\left[ \lambda_t 
+- \lambda_{t+1}\,[\,r_t - T'(i_{t+1})r_t + 1 - {T^a}'(a_{t+1})\,] \right].
+\end{aligned}
+\end{equation}
+
+\paragraph{First-order condition with respect to labor supply.}
+\begin{equation}
+\begin{aligned}
+[h_t]: \quad &
+\mathbb{E}_0 \Big[ \beta^t \big( U_h(c_t,h_t) + \lambda_t[\,w_t e_t - T'(i_t)\,] \big) \Big] = 0 \\
+&\iff \mathbb{E}_0 \Big[ -h_t^{-\gamma} 
++ \lambda_t \big( w_t e_t 
+- (w_t e_t h_t + r_{t-1}a_t 
+- (1-\tau)\tfrac{[\,w_t e_t h_t + r_{t-1}a_t\,]^{1-\xi}}{1-\xi}) \big) \Big] = 0.
+\end{aligned}
+\end{equation}
+
+\paragraph{Euler equation for consumption and savings.}
+Combining (B.2) and (B.3), we obtain the intertemporal Euler equation:
+\begin{equation}
+\mu_t 
+= \frac{\mathbb{E}_0 \, U_c(c_t,h_t)}{1+\tau_s}
+- \frac{\mathbb{E}_0 \, U_c(c_{t+1},h_{t+1})}{1+\tau_s}
+\Big\{ r_t - T'(i_{t+1})r_t + 1 - {T^a}'(a_{t+1}) \Big\}.
+\end{equation}
+
+Finally, By KKT conditiosn : $\mu_t>0$, $a_{t+1}>0$, and $\mu a_{t+1}=0$, applying the Fischer-Burmeister (FB) function $\psi^{\text{FB}}(x, y) = x+y-\sqrt{x^2+y^2} $ and turning into unit-free form 
+\begin{equation}
+x \coloneqq 
+1 - \frac{\mathbb{E}_0 U'(c_{t+1},h_{t+1})}{\mathbb{E}_0 U'(c_t,h_t)}
+\Big\{\, r_t - T'(i_{t+1})\,r_t + 1 - {T^a}'(a_{t+1}) \,\Big\}.
+\end{equation}
+
+\begin{equation}
+y \coloneqq a_{t+1} \in [\,\underline{a},\, m_t\,], 
+\qquad \underline{a} > 0.
+\end{equation}
+
+\pagebreak
+
+\subsection{Household problem : AiO Expectation form and reparameterization for functoianl approximation}
+\printbibliography[title={REFERENCES }, heading=bibintoc]
+\end{document}
