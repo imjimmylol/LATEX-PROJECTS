@@ -195,25 +195,46 @@ L &= \mathbb{E}_0 \sum_{t=0}^{T_N} \beta^t \Big\{ U(c_t,h_t)
 Combining (B.2) and (B.3), we obtain the intertemporal Euler equation:
 \begin{equation}
 \mu_t 
-= \frac{\mathbb{E}_0 \, U_c(c_t,h_t)}{1+\tau_s}
+= \frac{U_c(c_t,h_t)}{1+\tau_s}
 - \frac{\mathbb{E}_0 \, U_c(c_{t+1},h_{t+1})}{1+\tau_s}
 \Big\{ r_t - T'(i_{t+1})r_t + 1 - {T^a}'(a_{t+1}) \Big\}.
 \end{equation}
 
 Finally, By KKT conditiosn : $\mu_t>0$, $a_{t+1}>0$, and $\mu a_{t+1}=0$, applying the Fischer-Burmeister (FB) function $\psi^{\text{FB}}(x, y) = x+y-\sqrt{x^2+y^2} $ and turning into unit-free form 
+
 \begin{equation}
-x \coloneqq 
-1 - \frac{\mathbb{E}_0 U'(c_{t+1},h_{t+1})}{\mathbb{E}_0 U'(c_t,h_t)}
-\Big\{\, r_t - T'(i_{t+1})\,r_t + 1 - {T^a}'(a_{t+1}) \,\Big\}.
+x \coloneqq \frac{a_{t+1}}{m_t}\in [\frac{\underline{a}}{m_t}, 1], 
+\qquad \underline{a} > 0.
 \end{equation}
 
 \begin{equation}
-y \coloneqq a_{t+1} \in [\,\underline{a},\, m_t\,], 
-\qquad \underline{a} > 0.
+y \coloneqq 
+1 - \frac{\mathbb{E}_0 U'(c_{t+1},h_{t+1})}{U'(c_t,h_t)}
+\Big\{\, r_t - T'(i_{t+1})\,r_t + 1 - {T^a}'(a_{t+1}) \,\Big\}.
 \end{equation}
 
 \pagebreak
 
 \subsection{Household problem : AiO Expectation form and reparameterization for functoianl approximation}
+There are two sources of uncertainty in the households problem namely intial condition and income shock.
+So we define a set of random varbles according to its source $\vec{\omega}=(\vec{\iota }, \vec{\varepsilon })$
+Plug B.6 and B.7 into the Fischer-Burmeister fucntion
+\begin{equation}
+\mathbb{E}_{\vec{\iota}} \left[
+\phi^{\text{FB}}\!\left(
+\frac{a_{t+1}}{m_t},\,
+1 - \frac{\mathbb{E}_{\epsilon} U'(c_{t+1},h_{t+1})}{U'(c_t,h_t)}\Big\{\, r_t - T'(i_{t+1})\,r_t + 1 - {T^a}'(a_{t+1}) \,\Big\}
+\right)
+\right]^{2}
+\end{equation}
+
+We use a neural network to approximate household behavior,
+$f_\theta(\iota;\theta) \approx \frac{a_{t+1}}{m_t}$. Furthermore, to
+facilitate Monte Carlo simulation, following \cite{FiaccoMcCormick1968},
+we introduce an auxiliary variable $h_\phi(\iota;\phi)$ and add the
+penalty term $\upsilon_h\!\left(h - b(\cdot)\right)$. Setting $\upsilon_h$
+large (or annealing it upward) enforces the equality constraint in the
+exact-penalty sense \cite{nocedal2006numerical}.
+
 \printbibliography[title={REFERENCES }, heading=bibintoc]
 \end{document}

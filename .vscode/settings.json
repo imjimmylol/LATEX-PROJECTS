@@ -1,4 +1,5 @@
 {
+  // ── Tools (reuse your docker-xelatex / docker-biber; add a cleaner) ─────────────────
   "latex-workshop.latex.tools": [
     {
       "name": "docker-xelatex",
@@ -25,12 +26,25 @@
         "-w", "/data",
         "ghcr.io/xu-cheng/texlive-full:latest",
         "sh", "-c",
+        // NOTE: biber should read/write in build/, and DOCFILE is the basename (no .tex)
         "biber build/%DOCFILE%"
       ]
+    },
+    {
+      // Optional: local clean step before a full rebuild
+      "name": "local-clean-build-folder",
+      "command": "bash",
+      "args": ["-lc", "rm -rf build && mkdir -p build"]
+      // Windows PowerShell alternative:
+      // "command": "powershell",
+      // "args": ["-NoProfile", "-Command", "Remove-Item -Recurse -Force build; New-Item -ItemType Directory build | Out-Null"]
     }
   ],
+
+  // ── Recipes ────────────────────────────────────────────────────────────────────────
   "latex-workshop.latex.recipes": [
     {
+      // Your standard explicit Biber pipeline
       "name": "XeLaTeX → Biber → XeLaTeX (Docker → build/)",
       "tools": [
         "docker-xelatex",
@@ -38,19 +52,37 @@
         "docker-xelatex",
         "docker-xelatex"
       ]
+    },
+    {
+      // Optional: blow away build/ first, then do the full cycle
+      "name": "Clean → XeLaTeX → Biber → XeLaTeX ×2 (Docker → build/)",
+      "tools": [
+        "local-clean-build-folder",
+        "docker-xelatex",
+        "docker-biber",
+        "docker-xelatex",
+        "docker-xelatex"
+      ]
+    },
+    {
+      // Handy when bibliography changed but sources didn’t
+      "name": "Biber only (Docker → build/)",
+      "tools": ["docker-biber"]
     }
   ],
+
+  // ── Output dir & automation ────────────────────────────────────────────────────────
   "latex-workshop.latex.outDir": "build",
   "latex-workshop.latex.autoBuild.run": "onSave",
-  
-  // 同步 & 预览
+
+  // Sync & preview
   "latex-workshop.synctex.enabled": true,
   "latex-workshop.synctex.afterBuild.enabled": true,
   "latex-workshop.synctex.synctexjs.enabled": true,
   "latex-workshop.view.pdf.viewer": "tab",
   "latex-workshop.view.pdf.internal.synctex.keybinding": "ctrl+click",
 
-  // 清理
+  // Cleaning (you already had this — keep it)
   "latex-workshop.latex.clean.enabled": true,
   "latex-workshop.latex.clean.method": "glob",
   "latex-workshop.latex.autoClean.run": "onBuilt",
@@ -58,9 +90,7 @@
     "*.aux","*.bbl","*.blg","*.idx","*.ind","*.lof",
     "*.lot","*.out","*.toc","*.acn","*.acr","*.alg",
     "*.glg","*.glo","*.gls","*.fls","*.log","*.fdb_latexmk",
-    "*.snm","*.nav","*.vrb"
+    "*.snm","*.nav","*.vrb","*.bcf","*.run.xml"
   ],
-
-  // 不清理 synctex
   "latex-workshop.latex.clean.subFolder.enabled": true
 }
