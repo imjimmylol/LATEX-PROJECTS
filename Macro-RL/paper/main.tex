@@ -89,10 +89,37 @@ The households faces the following obtimization problem :
 \tag{1}
 \end{equation}
 
-Then by the method proposed in \cite{maliar2021deep} we can obtains its euler equation and KKT conditions in unit free form:
-
-
-
+Then by the method proposed in \cite{maliar2021deep} 
+we can solve this problem using deep learning by the objective function 
+of minimizing the Euler-residuals as follows\ref{objfunc:AiO}.(see appendix B) 
+\begin{equation}
+\begin{aligned}
+\mathbb{E}_{\vec{\omega}} \Big\{ &
+    \left[\,
+      \phi^{\text{FB}}\!\left(
+        \tfrac{a_{t+1}}{m_t},\,
+        1 - h_{\phi}
+      \right)
+    \right]^2
+    \\
+    &\quad +\;
+    \upsilon_h \Bigg(
+      \,h - 
+      \frac{U'(c_{t+1},h_{t+1})|_{\vec{\epsilon}=\vec{\epsilon_1}}}
+           {U'(c_t,h_t)}
+      \Big\{ r_t - T'(i_{t+1}) r_t + 1 - {T^a}'(a_{t+1}) \Big\}
+    \Bigg)
+    \\
+    &\qquad \times
+    \Bigg(
+      h - 
+      \frac{U'(c_{t+1},h_{t+1})|_{\vec{\epsilon}=\vec{\epsilon_2}}}
+           {U'(c_t,h_t)}
+      \Big\{ r_t - T'(i_{t+1}) r_t + 1 - {T^a}'(a_{t+1}) \Big\}
+    \Bigg)
+\;\Big\}.
+\end{aligned}\tag{2}
+\end{equation}
 \subsection{RL-based policy optimization}
 
 
@@ -231,10 +258,51 @@ Plug B.6 and B.7 into the Fischer-Burmeister fucntion
 We use a neural network to approximate household behavior,
 $f_\theta(\iota;\theta) \approx \frac{a_{t+1}}{m_t}$. Furthermore, to
 facilitate Monte Carlo simulation, following \cite{FiaccoMcCormick1968},
-we introduce an auxiliary variable $h_\phi(\iota;\phi)$ and add the
+we introduce an auxiliary variable $h_\phi(\iota;\phi) \approx \frac{\mathbb{E}_{\epsilon} U'(c_{t+1},h_{t+1})}{U'(c_t,h_t)}\Big\{\, r_t - T'(i_{t+1})\,r_t + 1 - {T^a}'(a_{t+1}) \,\Big\}$ and add the
 penalty term $\upsilon_h\!\left(h - b(\cdot)\right)$. Setting $\upsilon_h$
 large (or annealing it upward) enforces the equality constraint in the
-exact-penalty sense \cite{nocedal2006numerical}.
+exact-penalty sense \cite{nocedal2006numerical}. As a result, we use (B.9) to approximate (B.8)
+
+
+\begin{equation}
+  \mathbb{E}_{\vec{\iota}}\left[\phi^{\text{FB}}\!\left(
+  \frac{a_{t+1}}{m_t},\,
+  1 - h_{\phi}
+  \right) \right]^2 + 
+  \underbrace{\left[ \upsilon_h\!\left(h_{\phi} - \frac{\mathbb{E}_{\vec{\epsilon}} U'(c_{t+1},h_{t+1})}{U'(c_t,h_t)}\Big\{\, r_t - T'(i_{t+1})\,r_t + 1 - {T^a}'(a_{t+1}) \,\Big\}\right) \right]^2}_{\text{penalty factor}}
+\end{equation}
+
+By applying the AiO operator proposed in \cite{maliar2021deep} we can rewrite (B.9) as follows
+\label{objfunc:AiO}
+\begin{equation}
+\begin{aligned}
+\mathbb{E}_{\vec{\omega}} \Big\{ &
+    \left[\,
+      \phi^{\text{FB}}\!\left(
+        \tfrac{a_{t+1}}{m_t},\,
+        1 - h_{\phi}
+      \right)
+    \right]^2
+    \\
+    &\quad +\;
+    \upsilon_h \Bigg(
+      \,h - 
+      \frac{U'(c_{t+1},h_{t+1})|_{\vec{\epsilon}=\vec{\epsilon_1}}}
+           {U'(c_t,h_t)}
+      \Big\{ r_t - T'(i_{t+1}) r_t + 1 - {T^a}'(a_{t+1}) \Big\}
+    \Bigg)
+    \\
+    &\qquad \times
+    \Bigg(
+      h - 
+      \frac{U'(c_{t+1},h_{t+1})|_{\vec{\epsilon}=\vec{\epsilon_2}}}
+           {U'(c_t,h_t)}
+      \Big\{ r_t - T'(i_{t+1}) r_t + 1 - {T^a}'(a_{t+1}) \Big\}
+    \Bigg)
+\;\Big\}.
+\end{aligned}
+\end{equation}
+
 
 \printbibliography[title={REFERENCES }, heading=bibintoc]
 \end{document}
