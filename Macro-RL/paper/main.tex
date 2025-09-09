@@ -123,6 +123,8 @@ of minimizing the Euler-residuals as follows\ref{objfunc:AiO}.(see appendix B)
 \subsection{RL-based policy optimization}
 
 
+
+
 \appendix
 
 \section{Algorithmic Details}
@@ -201,7 +203,7 @@ L &= \mathbb{E}_0 \sum_{t=0}^{T_N} \beta^t \Big\{ U(c_t,h_t)
 &= \mathbb{E}_0 \!\left[ -\lambda_t + \mu_t 
 + \beta \,\lambda_{t+1}\,[\,r_t - T'(i_{t+1})r_t + 1 - {T^a}'(a_{t+1})\,] \right] = 0 \\
 &\implies \mathbb{E}_0[\mu_t] 
-= \mathbb{E}_0 \!\left[ \lambda_t 
+= \mathbb{E}_0 \beta \!\left[ \lambda_t 
 - \lambda_{t+1}\,[\,r_t - T'(i_{t+1})r_t + 1 - {T^a}'(a_{t+1})\,] \right].
 \end{aligned}
 \end{equation}
@@ -223,7 +225,7 @@ Combining (B.2) and (B.3), we obtain the intertemporal Euler equation:
 \begin{equation}
 \mu_t 
 = \frac{U_c(c_t,h_t)}{1+\tau_s}
-- \frac{\mathbb{E}_0 \, U_c(c_{t+1},h_{t+1})}{1+\tau_s}
+- \frac{\mathbb{E}_0 \, \beta U_c(c_{t+1},h_{t+1})}{1+\tau_s}
 \Big\{ r_t - T'(i_{t+1})r_t + 1 - {T^a}'(a_{t+1}) \Big\}.
 \end{equation}
 
@@ -236,7 +238,7 @@ x \coloneqq \frac{a_{t+1}}{m_t}\in [\frac{\underline{a}}{m_t}, 1],
 
 \begin{equation}
 y \coloneqq 
-1 - \frac{\mathbb{E}_0 U'(c_{t+1},h_{t+1})}{U'(c_t,h_t)}
+1 - \frac{\mathbb{E}_0 \beta U'(c_{t+1},h_{t+1})}{U'(c_t,h_t)}
 \Big\{\, r_t - T'(i_{t+1})\,r_t + 1 - {T^a}'(a_{t+1}) \,\Big\}.
 \end{equation}
 
@@ -250,7 +252,7 @@ Plug B.6 and B.7 into the Fischer-Burmeister fucntion
 \mathbb{E}_{\vec{\iota}} \left[
 \phi^{\text{FB}}\!\left(
 \frac{a_{t+1}}{m_t},\,
-1 - \frac{\mathbb{E}_{\epsilon} U'(c_{t+1},h_{t+1})}{U'(c_t,h_t)}\Big\{\, r_t - T'(i_{t+1})\,r_t + 1 - {T^a}'(a_{t+1}) \,\Big\}
+1 - \frac{\mathbb{E}_{\epsilon} \beta U'(c_{t+1},h_{t+1})}{U'(c_t,h_t)}\Big\{\, r_t - T'(i_{t+1})\,r_t + 1 - {T^a}'(a_{t+1}) \,\Big\}
 \right)
 \right]^{2}
 \end{equation}
@@ -269,7 +271,7 @@ exact-penalty sense \cite{nocedal2006numerical}. As a result, we use (B.9) to ap
   \frac{a_{t+1}}{m_t},\,
   1 - h_{\phi}
   \right) \right]^2 + 
-  \underbrace{\left[ \upsilon_h\!\left(h_{\phi} - \frac{\mathbb{E}_{\vec{\epsilon}} U'(c_{t+1},h_{t+1})}{U'(c_t,h_t)}\Big\{\, r_t - T'(i_{t+1})\,r_t + 1 - {T^a}'(a_{t+1}) \,\Big\}\right) \right]^2}_{\text{penalty factor}}
+  \underbrace{\left[ \upsilon_h\!\left(h_{\phi} - \frac{\mathbb{E}_{\vec{\epsilon}} \beta U'(c_{t+1},h_{t+1})}{U'(c_t,h_t)}\Big\{\, r_t - T'(i_{t+1})\,r_t + 1 - {T^a}'(a_{t+1}) \,\Big\}\right) \right]^2}_{\text{penalty factor}}
 \end{equation}
 
 By applying the AiO operator proposed in \cite{maliar2021deep} we can rewrite (B.9) as follows
@@ -287,7 +289,7 @@ By applying the AiO operator proposed in \cite{maliar2021deep} we can rewrite (B
     &\quad +\;
     \upsilon_h \Bigg(
       \,h - 
-      \frac{U'(c_{t+1},h_{t+1})|_{\vec{\epsilon}=\vec{\epsilon_1}}}
+      \frac{\beta U'(c_{t+1},h_{t+1})|_{\vec{\epsilon}=\vec{\epsilon_1}}}
            {U'(c_t,h_t)}
       \Big\{ r_t - T'(i_{t+1}) r_t + 1 - {T^a}'(a_{t+1}) \Big\}
     \Bigg)
@@ -295,7 +297,7 @@ By applying the AiO operator proposed in \cite{maliar2021deep} we can rewrite (B
     &\qquad \times
     \Bigg(
       h - 
-      \frac{U'(c_{t+1},h_{t+1})|_{\vec{\epsilon}=\vec{\epsilon_2}}}
+      \frac{\beta U'(c_{t+1},h_{t+1})|_{\vec{\epsilon}=\vec{\epsilon_2}}}
            {U'(c_t,h_t)}
       \Big\{ r_t - T'(i_{t+1}) r_t + 1 - {T^a}'(a_{t+1}) \Big\}
     \Bigg)
@@ -303,6 +305,63 @@ By applying the AiO operator proposed in \cite{maliar2021deep} we can rewrite (B
 \end{aligned}
 \end{equation}
 
+
+\section{Coding Details}
+
+In this section, we provide specific coding details for implementing the Semi-RL Autonomous Macro System (SAMS) framework. The implementation is done using Python with libraries such as TensorFlow/PyTorch for deep learning and Stable Baselines3 for reinforcement learning.
+
+\subsection{Environment Construction : Household Solver Implementation}
+
+We need to calculate the upper bound for the whole economy to restrict and normalize the action space of households and government.
+
+First we pin down price bounds from firm FOCs and the no-arbitrage condition, by the firm's first-order conditions (FOCs) for profit maximization, we have:
+\begin{equation}
+\begin{aligned}
+\frac{\partial Y_t}{\partial L_t} &= 0 \implies W_t = (1 - \alpha) \left( \frac{K_t}{L_t} \right)^{\alpha} \\
+\frac{\partial Y_t}{\partial K_t} &= 0 \implies R_t = \alpha \left( \frac{K_t}{L_t} \right)^{\alpha - 1}
+\end{aligned}
+\end{equation}
+
+Then, apply the no-arbitrage condition from financial intermediary $R_{t+1} = r_t + \delta$, since $r_t \in [0,1]$, we have 
+\begin{equation}
+  R_{t} = \alpha \left( \frac{K_t}{L_t} \right)^{\alpha - 1} \le 1+\delta, 
+  \implies \alpha \left( \frac{K_t}{L_t} \right)^{\alpha-1} \le 1+\delta 
+  \implies \frac{K_t}{L_t} \le \left(\frac{1+\delta}{\alpha}\right)^{\frac{1}{\alpha-1}}.
+\end{equation}
+Plug (C.2) back into (C.1) we have the upper bound of wage rate :
+\[
+ w_t = (1 - \alpha) \left( \frac{K_t}{L_t} \right)^{\alpha} \leq \left( \frac{1+\delta}{\alpha} \right)^{\frac{\alpha}{\alpha-1}} \coloneqq \bar{W^*}.
+\]
+
+Secondly, consider the household's income process $i_t = w_t e_t h_t + r_{t-1} a_t$, since given $\rho<1$ and $h_t \leq 1$ and clearly $e_t \in [0, e^{*}]$ is bounded, provided 
+$\bar{e^*} = \text{Max} \left[\exp\left(T_0\bar{\rho}\right)\bar{e} + \frac{\bar{e}\left(1-e^{T_0\bar{\rho}}\right)}{1-e^{T_0\bar{\rho}}}, C_{\text{super}}^{T_0}\left(e^{\bar{\rho}} \bar{e} + e^{\sigma_e \bar{u}}\right)^{T_0}\right] $ since:
+
+\paragraph{Upper bound of normal state}
+
+\begin{equation*}
+\begin{aligned}
+  e_{t} &=
+    e^{\rho_t}e_{t-1}+e^{\sigma_e u_t} 
+    = \exp\left(\sum_{k=0}^{T_0}\rho_{t-k}\right)e_{t-k} + \sum_{k=0}^{T_0} e_{t-k}\exp\!\left(\sum_{j=0}^{k-1}\rho_{t+j}\right) \\
+  & \leq \exp\left(\sum_{k=0}^{T_0}\rho_{t-k}\right)e_{t-k} + \frac{\bar{e}\left(1-e^{T_0\bar{\rho}}\right)}{1-e^{T_0\bar{\rho}}} 
+  \leq \exp\left(T_0\bar{\rho}\right)\bar{e} + \frac{\bar{e}\left(1-e^{T_0\bar{\rho}}\right)}{1-e^{T_0\bar{\rho}}} \coloneqq \bar{e^*}. \quad 0<T_0<\infty
+\end{aligned}
+\end{equation*}
+
+\paragraph{Upper bound if remaining at superstar state}
+
+\begin{equation*}
+  \begin{aligned}
+    t = 0: &\quad e_0 \leq \bar{e} \\
+    t = 1: &\quad e_1 \leq e^{\rho} e_0 + e^{\sigma_e u_1} 
+              \leq e^{\bar{\rho}} \bar{e} + e^{\sigma_e \bar{u}} \\
+    t = 2: &\quad e_2 \leq C_{\text{super}}\left(e^{\bar{\rho}} \bar{e} + e^{\sigma_e \bar{u}}\right) \\
+    \vdots \\
+    t = T_0: &\quad e_{T_0} \leq C_{\text{super}}^{T_0}\left(e^{\bar{\rho}} \bar{e} + e^{\sigma_e \bar{u}}\right)^{T_0}
+  \end{aligned}
+\end{equation*}
+
+\pagebreak
 
 \printbibliography[title={REFERENCES }, heading=bibintoc]
 \end{document}

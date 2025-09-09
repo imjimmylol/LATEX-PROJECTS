@@ -1,0 +1,32 @@
+\documentclass[11pt]{article}
+\usepackage{pepadun}
+
+\usepackage[backend=biber, style=ieee]{biblatex}
+\addbibresource{pepadun.bib}  % Use the provided bib file
+
+% Metadata
+\title{Semi-RL Autonomous Macro System: A Hybrid Approach for Reinforcement Learning in Macroeconomics}
+\author{%
+    \begin{tabular}{c}
+        \textsuperscript{1}Jing-Ho, Chen, \\
+        \textsuperscript{2}Next Author and \\[6pt]
+        \textsuperscript{1,2}Economic, National Chengchi University, \\
+        No.64, Sec.2, ZhiNan Rd., Wenshan District, Taipei City 116011, Taiwan (R.O.C.) \\[6pt]
+        e-mail: \textsuperscript{1} zhingehe78@gmail.com, \\
+    \end{tabular}%
+}
+\date{} % Remove automatic date
+
+\begin{document}
+
+\maketitle
+
+\input{sections/abstract}
+\input{sections/introduction.tex}
+\input{sections/methodology}
+\input{sections/rl_optimization}
+\input{sections/appendix}
+
+\printbibliography[title={REFERENCES }, heading=bibintoc]
+
+\end{document}

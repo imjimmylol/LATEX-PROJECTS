@@ -1,0 +1,21 @@
+% \documentclass[11pt]{article}
+
+\section{RL-based Policy Optimization}
+
+With a responsive, equilibrium-grounded environment in place, we introduce the government RL agent. The complete procedure is summarized in Algorithm~\ref{alg:sams} (see Appendix).
+
+Overall, the system alternates between (i) solving households’ optimization via Euler-residual minimization and (ii) improving the government’s policy via RL, yielding a Semi-RL Autonomous Macro System that is both scalable and theoretically disciplined.
+
+\subsection{Deriving Environment Dynamics and Learning Objectives}
+
+We choose the structure of the Bewley-Aiyagari model as our macro backbone following the article \cite{mi2023taxai}.
+
+\subsection{RL-based Policy Optimization}
+
+The RL-based policy optimization process is crucial for the functioning of the Semi-RL Autonomous Macro System. It involves the government agent learning optimal policies that adapt to the economic environment shaped by the decisions of the households and firms. The RL agent interacts with the environment, receiving feedback based on its actions, which allows it to refine its strategies over time.
+
+The learning objectives for the RL agent are defined in terms of maximizing a welfare function, which captures the overall economic well-being of the agents in the system. The RL agent's actions, such as adjusting tax rates or implementing subsidies, are evaluated based on their impact on this welfare function.
+
+The algorithm for the RL-based policy optimization is detailed in Algorithm~\ref{alg:sams}, which outlines the steps taken by the RL agent to learn and adapt its policy in response to the dynamic economic environment.
+
+In summary, the RL-based policy optimization is a key component of the SAMS framework, enabling the government agent to effectively respond to changes in the economy and implement policies that promote stability and growth.
