@@ -334,32 +334,46 @@ Plug (C.2) back into (C.1) we have the upper bound of wage rate :
 \]
 
 Secondly, consider the household's income process $i_t = w_t e_t h_t + r_{t-1} a_t$, since given $\rho<1$ and $h_t \leq 1$ and clearly $e_t \in [0, e^{*}]$ is bounded, provided 
-$\bar{e^*} = \text{Max} \left[\exp\left(T_0\bar{\rho}\right)\bar{e} + \frac{\bar{e}\left(1-e^{T_0\bar{\rho}}\right)}{1-e^{T_0\bar{\rho}}}, C_{\text{super}}^{T_0}\left(e^{\bar{\rho}} \bar{e} + e^{\sigma_e \bar{u}}\right)^{T_0}\right] $ since:
+$\bar{e^*} = \text{Max} \left[v_{T_0+1} = v_{0}^{(T_0+1)\rho_v} 
+\cdot \exp\!\left(\sigma_v \sum_{s=0}^{T_0} \rho_v^{\,s} u_{t+s}\right), 
+C_{\text{super}}^{T_0}v_{0}^{\rho_v} \exp\!\left(\sigma_v u_{t}\right)\right] $ since:
 
-\paragraph{Upper bound of normal state}
+\paragraph{Upper bound for the normal state}
+suppose the shock follows the AR(1) process without getting in the 
+superstar state, then we can calculate the upper bound as follows :
 
 \begin{equation*}
 \begin{aligned}
-  e_{t} &=
-    e^{\rho_t}e_{t-1}+e^{\sigma_e u_t} 
-    = \exp\left(\sum_{k=0}^{T_0}\rho_{t-k}\right)e_{t-k} + \sum_{k=0}^{T_0} e_{t-k}\exp\!\left(\sum_{j=0}^{k-1}\rho_{t+j}\right) \\
-  & \leq \exp\left(\sum_{k=0}^{T_0}\rho_{t-k}\right)e_{t-k} + \frac{\bar{e}\left(1-e^{T_0\bar{\rho}}\right)}{1-e^{T_0\bar{\rho}}} 
-  \leq \exp\left(T_0\bar{\rho}\right)\bar{e} + \frac{\bar{e}\left(1-e^{T_0\bar{\rho}}\right)}{1-e^{T_0\bar{\rho}}} \coloneqq \bar{e^*}. \quad 0<T_0<\infty
+    t = 0: \quad & v_{1} = v_{0}^{\rho_v} \exp\!\left(\sigma_v u_{t}\right), \\
+    t = 1: \quad & v_{2} = \left(v_{0}^{\rho_v} \exp\!\left(\sigma_v u_{t}\right)\right)^{\rho_v} 
+                    \cdot \exp\!\left(\sigma_v u_{t+1}\right), \\
+    & \vdots \\
+    t = T_0: \quad & v_{T_0+1} = v_{0}^{(T_0+1)\rho_v} 
+      \cdot \exp\!\left(\sigma_v \sum_{s=0}^{T_0} \rho_v^{\,s} u_{t+s}\right).
 \end{aligned}
 \end{equation*}
 
 \paragraph{Upper bound if remaining at superstar state}
+suppose the shock remains at the superstar state for $T_0$ periods, then we can calculate the upper bound as follows :
 
 \begin{equation*}
   \begin{aligned}
-    t = 0: &\quad e_0 \leq \bar{e} \\
-    t = 1: &\quad e_1 \leq e^{\rho} e_0 + e^{\sigma_e u_1} 
-              \leq e^{\bar{\rho}} \bar{e} + e^{\sigma_e \bar{u}} \\
-    t = 2: &\quad e_2 \leq C_{\text{super}}\left(e^{\bar{\rho}} \bar{e} + e^{\sigma_e \bar{u}}\right) \\
-    \vdots \\
-    t = T_0: &\quad e_{T_0} \leq C_{\text{super}}^{T_0}\left(e^{\bar{\rho}} \bar{e} + e^{\sigma_e \bar{u}}\right)^{T_0}
+    t = 0: \quad & v_{1} = v_{0}^{\rho_v} \exp\!\left(\sigma_v u_{t}\right), \\
+    t = 1: \quad & v_{2} \leq C_{\text{super}}v_{0}^{\rho_v} \exp\!\left(\sigma_v u_{t}\right), \\
+    & \vdots \\
+    t = T_0: \quad & v_{T_0+1} \leq C_{\text{super}}^{T_0}v_{0}^{\rho_v} \exp\!\left(\sigma_v u_{t}\right)
   \end{aligned}
 \end{equation*}
+
+Then by definition of money on hand $m_t \coloneqq i_t - T(i_t) + a_t - T^{a}(a_t)$, and replace each term with its upper bound, 
+we can obtain $m_t \leq \bar{W^*} \bar{e^*} + \left(1+\bar{R}\right) \bar{a^*}$, 
+and $\bar{a^*}$ can be calculated recursively since the propotional action satisfies the relation : 
+$a_{t+1} \leq i_t + a_t$ given the intial conditions $\bar{e}$ and $\bar{a}$ and $\bar{e^*}, \bar{W^*}, \bar{h^*}$ and $\bar{R^*}$ which comes from the government action space. Note that these bounds are caluclated recursively using recursion. 
+
+However, there are other ways to noramlize the environment, for example batch noramlization. That is calculate the upper bound and lower bound adaptivly according to each draws of shock and inital conditions. Experiments shown that this method is more robust and flexable to non-stationary economic status.
+
+
+
 
 \pagebreak
 
