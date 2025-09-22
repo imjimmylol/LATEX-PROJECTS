@@ -216,7 +216,11 @@ L &= \mathbb{E}_0 \sum_{t=0}^{T_N} \beta^t \Big\{ U(c_t,h_t)
 &\iff \mathbb{E}_0 \Big[ -h_t^{-\gamma} 
 + \lambda_t \big( w_t e_t 
 - (w_t e_t h_t + r_{t-1}a_t 
-- (1-\tau)\tfrac{[\,w_t e_t h_t + r_{t-1}a_t\,]^{1-\xi}}{1-\xi}) \big) \Big] = 0.
+- (1-\tau)\tfrac{[\,w_t e_t h_t + r_{t-1}a_t\,]^{1-\xi}}{1-\xi}) \big) \Big] = 0 \\
+&\iff \mathbb{E}_0 \Big[ -h_t^{-\gamma} 
++ \frac{U_c(c_t,h_t)}{1+\tau_s}\big( w_t e_t 
+- (w_t e_t h_t + r_{t-1}a_t 
+- (1-\tau)\tfrac{[\,w_t e_t h_t + r_{t-1}a_t\,]^{1-\xi}}{1-\xi}) \big) \Big] = 0
 \end{aligned}
 \end{equation}
 
@@ -260,8 +264,8 @@ Plug B.6 and B.7 into the Fischer-Burmeister fucntion
 We use a neural network to approximate household behavior,
 $f_\theta(\iota;\theta) \approx \frac{a_{t+1}}{m_t}$. Furthermore, to
 facilitate Monte Carlo simulation, following \cite{FiaccoMcCormick1968},
-we introduce an auxiliary variable $h_\phi(\iota;\phi) \approx \frac{\mathbb{E}_{\epsilon} U'(c_{t+1},h_{t+1})}{U'(c_t,h_t)}\Big\{\, r_t - T'(i_{t+1})\,r_t + 1 - {T^a}'(a_{t+1}) \,\Big\}$ and add the
-penalty term $\upsilon_h\!\left(h - b(\cdot)\right)$. Setting $\upsilon_h$
+we introduce an auxiliary variable $\mu_\phi(\iota;\phi) \approx \frac{\mathbb{E}_{\epsilon} U'(c_{t+1},h_{t+1})}{U'(c_t,h_t)}\Big\{\, r_t - T'(i_{t+1})\,r_t + 1 - {T^a}'(a_{t+1}) \,\Big\}$ and add the
+penalty term $\upsilon_{\mu}\!\left(\mu - b(\cdot)\right)$. Setting $\upsilon_{\mu}$
 large (or annealing it upward) enforces the equality constraint in the
 exact-penalty sense \cite{nocedal2006numerical}. As a result, we use (B.9) to approximate (B.8)
 
@@ -269,9 +273,9 @@ exact-penalty sense \cite{nocedal2006numerical}. As a result, we use (B.9) to ap
 \begin{equation}
   \mathbb{E}_{\vec{\iota}}\left[\phi^{\text{FB}}\!\left(
   \frac{a_{t+1}}{m_t},\,
-  1 - h_{\phi}
+  1 - \mu_{\phi}
   \right) \right]^2 + 
-  \underbrace{\left[ \upsilon_h\!\left(h_{\phi} - \frac{\mathbb{E}_{\vec{\epsilon}} \beta U'(c_{t+1},h_{t+1})}{U'(c_t,h_t)}\Big\{\, r_t - T'(i_{t+1})\,r_t + 1 - {T^a}'(a_{t+1}) \,\Big\}\right) \right]^2}_{\text{penalty factor}}
+  \underbrace{\left[ \upsilon_{\mu}\!\left(\mu_{\phi} - \frac{\mathbb{E}_{\vec{\epsilon}} \beta U'(c_{t+1},h_{t+1})}{U'(c_t,h_t)}\Big\{\, r_t - T'(i_{t+1})\,r_t + 1 - {T^a}'(a_{t+1}) \,\Big\}\right) \right]^2}_{\text{penalty factor}}
 \end{equation}
 
 By applying the AiO operator proposed in \cite{maliar2021deep} we can rewrite (B.9) as follows
@@ -282,13 +286,13 @@ By applying the AiO operator proposed in \cite{maliar2021deep} we can rewrite (B
     \left[\,
       \phi^{\text{FB}}\!\left(
         \tfrac{a_{t+1}}{m_t},\,
-        1 - h_{\phi}
+        1 - \mu_{\phi}
       \right)
     \right]^2
     \\
     &\quad +\;
     \upsilon_h \Bigg(
-      \,h - 
+      \,\mu - 
       \frac{\beta U'(c_{t+1},h_{t+1})|_{\vec{\epsilon}=\vec{\epsilon_1}}}
            {U'(c_t,h_t)}
       \Big\{ r_t - T'(i_{t+1}) r_t + 1 - {T^a}'(a_{t+1}) \Big\}
@@ -296,7 +300,7 @@ By applying the AiO operator proposed in \cite{maliar2021deep} we can rewrite (B
     \\
     &\qquad \times
     \Bigg(
-      h - 
+      \mu - 
       \frac{\beta U'(c_{t+1},h_{t+1})|_{\vec{\epsilon}=\vec{\epsilon_2}}}
            {U'(c_t,h_t)}
       \Big\{ r_t - T'(i_{t+1}) r_t + 1 - {T^a}'(a_{t+1}) \Big\}
@@ -372,8 +376,174 @@ $a_{t+1} \leq i_t + a_t$ given the intial conditions $\bar{e}$ and $\bar{a}$ and
 
 However, there are other ways to noramlize the environment, for example batch noramlization. That is calculate the upper bound and lower bound adaptivly according to each draws of shock and inital conditions. Experiments shown that this method is more robust and flexable to non-stationary economic status.
 
+\pagebreak
 
+\subsection{Neural Network Design}
+We describe the design choices made for the neural network architectures used in our experiments. 
+Our modeling framework involves two main components: the household policy network and the government policy network.
 
+\subsubsection{Household policy network.}
+We approximate the household policy function with a residual MLP augmented by Feature-wise Linear Modulation (FiLM). 
+The conditioning signal is low-dimensional (policy instruments such as consumption, income, and wealth taxes), and FiLM efficiently injects this information by per-feature scaling and shifting \cite{Perez2018FiLM}. 
+Unlike multi-head attention, which has quadratic complexity in sequence length, FiLM is computationally lightweight and parameter-efficient—an important advantage for large-scale simulations with many heterogeneous households. 
+
+\subsubsection{Household Timing and Recursive System}
+
+\paragraph{Within–period timing ($t \to t+1$).}
+Note that the term "states" in this section simply refers to the equation solving process, it is different from the "state" in RL terminology.
+
+\begin{enumerate}
+    \item \textbf{State Realization (Beginning of Period $t$):}
+    The state of the economy is given by the joint distribution of individual assets and productivities, $\{a_t^i, e_t^i\}_{i=1}^N$. The aggregate capital stock, $K_t$, is a \textbf{predetermined state variable} calculated from the sum of individual assets:
+    $$
+    K_t = \sum_{i=1}^{N} a_t^i
+    $$
+
+    \item \textbf{Factor Price Determination (Within Period $t$):}
+    The wage $w_t$ and aggregate labor supply $L_t$ are determined \textbf{simultaneously} in a general equilibrium. Households take $w_t$ as given, but their collective actions must be consistent with it. The rental rate paid on assets from the previous period, $r_{t-1}$, is also realized.
+
+    \item \textbf{Household Action (Within Period $t$):}
+    Taking the equilibrium prices $(w_t, r_{t-1})$ as given, each household $i$ observes its individual state $(a_t^i, e_t^i)$ and chooses its control variables, labor supply $h_t^i$ and next-period assets $a_{t+1}^i$, according to its policy function $\pi_\theta$:
+    $$
+    (h_t^i, a_{t+1}^i) = \pi_\theta(a_t^i, e_t^i, \text{aggregate state})
+    $$
+    Consumption, $c_t^i$, is then determined as a residual from the budget constraint.
+
+    \item \textbf{Flows and Aggregation:}
+    Individual income $i_t^i$, disposable resources $m_t^i$, and consumption $c_t^i$ are realized based on the choices from Step 3.
+    $$
+    i_t^i = w_t e_t^i h_t^i + r_{t-1} a_t^i
+    $$
+    $$
+    m_t^i = i_t^i - T(i_t^i) + a_t^i - T^{a}(a_t^i)
+    $$
+    $$
+    c_t^i = \frac{m_t^i - a_{t+1}^i}{1+\tau_s}
+    $$
+    The aggregate capital for the next period is then determined by summing the individual savings choices:
+    $$
+    K_{t+1} = \sum_{i=1}^{N} a_{t+1}^i
+    $$
+
+    \item \textbf{State Transition ($t \to t+1$):}
+    Idiosyncratic productivity shocks transition according to their stochastic process, $e_{t+1}^i \sim \Pi_e(\cdot | e_t^i)$. The new state of the economy for period $t+1$ is the set $\{a_{t+1}^i, e_{t+1}^i\}_{i=1}^N$, and the cycle repeats.
+\end{enumerate}
+
+\begin{enumerate}
+  \item \textbf{States given : $\mathbf{\mathcal{S}_t}=\big( \mathbf{S}_{idv}, \mathbf{S}_{other}, \mathbf{S}_{pc} \big)$} \\
+   Individual states $\mathbf{S}_{idv} = \big(a_t^i,v_t^i\big)$, the agent knows his own productivity and the asset holdings from previous periods.\\
+   States of other agents $\mathbf{S}_{other} = \big( a_t^1, a_t^2, \ldots, a_t^N, v_t^1, v_t^2, \ldots, v_t^N \big)$, this network is a simple households equation based learning, so we assume a Gods view for the global states.\\
+   Aggregate shocks/policy $\mathbf{S}_{pc} = \big( \tau_t^a, \xi_t^a ,\tau_t, \xi_t \big)$, the government policy instruments, in step3, it is depending on the actions of the government, which schedule will be learned via reinforcement learning.
+  \item \textbf{Prices computed from aggregates : $\mathcal{P}(\mathcal{S}_t) = (w_t,r_{t})$} \\
+  The prices are computed from the aggregates of all agents. 
+  Note that the prices are calculated via the F.O.C. of the firm, and we assume all the savings are invested in the capital market, and the capital follows the law of motion $K_{t+1} = (1-\delta)K_t + I_t$.
+  \item \textbf{Household chooses controls:} $\pi_\theta(\mathbf{\mathcal{S}_t})=(a_{t+1}, h_t)$.
+  \item \textbf{Flows and budget/ taxes realize:}
+  \[
+    i_t = w_t e_t h_t + r_{t-1} a_t,\qquad
+    m_t \coloneqq i_t - T(i_t) + a_t - T^{a}(a_t),
+  \]
+  \[
+    (1+\tau_s)\,c_t + a_{t+1} = m_t,\qquad c_t \le \frac{m_t}{1+\tau_s},\quad a_{t+1}\ge 0,\quad h_t\in[0,h_{\max}].
+  \]
+  \item \textbf{Idiosyncratic/aggregate transitions:}
+  \[
+    e_{t+1}\sim \Pi_e(\cdot\mid e_t,\mathbf{S}_t),\qquad
+    \mathbf{S}_{t+1} \sim \Pi_S(\cdot\mid \mathbf{S}_t,\text{aggregates}).
+  \]
+\end{enumerate}
+
+\paragraph{Vectors and objects.}
+\[
+\mathbf{S}_t \;=\; \big(z_t,\;\text{tax params }(\tau_s,\text{params of }T, T^a),\;\text{other aggregate states}\big),
+\]
+\[
+\mathbf{s}_t \;=\; \big(a_t,\,e_t\big), \qquad
+\mathbf{u}_t \;=\; \big(c_t,\,h_t,\,a_{t+1}\big).
+\]
+
+\paragraph{Preferences.}
+\[
+\max_{\{c_t,h_t,a_{t+1}\}} \; \mathbb{E}_0\sum_{t=0}^{T_N}\beta^t
+\left( \frac{c_t^{1-\theta}}{1-\theta} - \frac{h_t^{1+\gamma}}{1+\gamma} \right).
+\]
+
+\paragraph{Prices (example Cobb–Douglas).}
+If aggregates imply $K_t$ and $L_t=\sum_i e_t^{(i)}h_t^{(i)}$, then
+\[
+w_t=(1-\alpha)\Big(\tfrac{K_t}{L_t}\Big)^{\alpha},\qquad
+r_{t-1}=\alpha\Big(\tfrac{K_{t-1}}{L_{t-1}}\Big)^{\alpha-1}.
+\]
+
+\paragraph{Feasibility and tax system.}
+\[
+(1+\tau_s)c_t + a_{t+1} = \underbrace{w_t e_t h_t + r_{t-1} a_t}_{i_t}
+\;-\; T(i_t)\;+\; a_t \;-\; T^a(a_t),
+\]
+\[
+c_t \in \Big[0,\;\tfrac{m_t}{1+\tau_s}\Big],\quad h_t\in[0,h_{\max}],\quad a_{t+1}\in[0,\infty).
+\]
+
+\paragraph{State transitions (Markov).}
+\[
+a_{t+1} \;=\; m_t - (1+\tau_s)c_t \;\equiv\; \mathcal{T}_a(\mathbf{s}_t,\mathbf{S}_t,\mathbf{u}_t),
+\]
+\[
+e_{t+1} \sim \Pi_e(\cdot\mid e_t,\mathbf{S}_t),\qquad
+\mathbf{S}_{t+1} \sim \Pi_S(\cdot\mid \mathbf{S}_t,\text{aggregates from }\{\mathbf{u}_t^{(i)}\}_i).
+\]
+
+\paragraph{Aggregation (for completeness).}
+\[
+K_{t+1}=\sum_i a_{t+1}^{(i)},\qquad L_t=\sum_i e_t^{(i)}h_t^{(i)},\qquad
+\mathbf{S}_{t+1}=\mathcal{G}\big(\mathbf{S}_t,\{a_{t+1}^{(i)}\}_i,\{e_t^{(i)}h_t^{(i)}\}_i, \text{shocks}\big).
+\]
+
+\subsubsection{Household Solver (Neural Policy) — Inputs \& Outputs}
+
+\paragraph{Solver input (network conditioning).}
+\[
+\text{NN input } \mathbf{x}_t \;=\; \Big[\; a_t,\; e_t,\; z_t,\; \text{tax params},\; \text{(optional price summaries)} \;\Big].
+\]
+
+\paragraph{Solver output (controls or parameterization).}
+Two equivalent parameterizations are convenient:
+
+\medskip
+\noindent\textbf{(A) Direct controls}
+\[
+(c_t,\,h_t,\,a_{t+1}) \;=\; \pi_\theta(\mathbf{x}_t),
+\quad \text{projected to } \mathcal{U}=\Big\{ c_t\!\in\!\big[0,\tfrac{m_t}{1+\tau_s}\big],\; h_t\!\in\![0,h_{\max}],\; a_{t+1}\!\ge\!0 \Big\}.
+\]
+
+\noindent\textbf{(B) Stable reparameterization}
+\[
+\big(\varsigma_t,\,h_t\big) = \pi_\theta(\mathbf{x}_t),
+\qquad \varsigma_t \in (0,1) \text{ via sigmoid,}
+\]
+\[
+c_t = \varsigma_t\cdot \frac{m_t}{1+\tau_s},\qquad
+a_{t+1} = m_t - (1+\tau_s)c_t,
+\]
+which enforces the budget bound by construction.
+
+\paragraph{Euler system (training target, schematic).}
+\[
+U_c(c_t,h_t) = \beta\,\mathbb{E}_t\!\left[ U_c(c_{t+1},h_{t+1})\,(1-\delta + r_t)\right],
+\qquad
+U_h(c_t,h_t) = -\,w_t e_t \, U_c(c_t,h_t),
+\]
+with $U_c(c,h)=c^{-\theta}$ and $U_h(c,h)=h^{\gamma}$, embedded as residuals (and tax wedges embedded in $m_t$ and prices).
+
+\paragraph{Summary (markovian recursion).}
+\[
+(\mathbf{s}_{t+1},\mathbf{S}_{t+1})
+\;=\;
+\Big(\,\mathcal{T}_a(\mathbf{s}_t,\mathbf{S}_t,\pi_\theta(\mathbf{x}_t)),\;\Pi_e(\cdot),\;\Pi_S(\cdot)\,\Big).
+\]
+
+\subsubsection{Government Policy Network.}
+[TODO]
 
 \pagebreak
 
